@@ -1,11 +1,11 @@
 import customtkinter as ctk
 import re
-#lol
+
 import psycopg2
 from config import host, user, password, db_name, port
 
-from customtkinter import CTkFrame
 from constants import OBJECT_WIDTH, OBJECT_HEIGHT, PV_ERROR_LEN, LV_ERROR_LEN, LV_ERROR_SYMB
+
 
 def register(main_menu_buttons_frame, app):
     main_menu_buttons_frame.destroy()

@@ -1,10 +1,12 @@
 import customtkinter as ctk
+import bcrypt
 import re
 
 import psycopg2
 from config import host, user, password, db_name, port
 
-from constants import OBJECT_WIDTH, OBJECT_HEIGHT, PV_ERROR_LEN, LV_ERROR_LEN, LV_ERROR_SYMB
+from constants import (OBJECT_WIDTH, OBJECT_HEIGHT, PV_ERROR_LEN,
+                       LV_ERROR_LEN, LV_ERROR_SYMB, LV_ERROR_EXIST)
 
 
 def register(main_menu_buttons_frame, app):
@@ -50,11 +52,13 @@ def register(main_menu_buttons_frame, app):
     def lv_error(user_login):
         if len(user_login) < 4:
             error_label.configure(text=LV_ERROR_LEN)
+        elif check_login_in_db(user_login):
+            error_label.configure(text=LV_ERROR_EXIST)
         else:
             error_label.configure(text=LV_ERROR_SYMB)
 
 
-    def password_validate(user_password):
+    def password_validate(user_password) -> bool:
         if len(user_password) > 6:
             return True
         else:
@@ -62,7 +66,11 @@ def register(main_menu_buttons_frame, app):
             return False
 
 
-    def login_validate(user_login):
+    def check_login_in_db(user_login) -> bool:
+        pass
+
+
+    def login_validate(user_login) -> bool:
         pattern = r'[^a-zA-Z0-9]'
         if not bool(re.search(pattern, user_login)) and len(user_login) > 3:
             return True
@@ -87,8 +95,12 @@ def register(main_menu_buttons_frame, app):
                     database=db_name,
                 )
 
+                b_password = user_password.encode('utf-8')
+                salt = bcrypt.gensalt()
+                encrypted_password = bcrypt.hashpw(b_password, salt)
+
                 with connection.cursor() as cursor:
-                    cursor.execute('INSERT INTO "Users" (login, password) VALUES (%s, %s);', (user_login, user_password))
+                    cursor.execute('INSERT INTO "Users" (login, password) VALUES (%s, %s);', (user_login, encrypted_password))
                     connection.commit()
                     print("[INFO] An account has been successfully created.")
 

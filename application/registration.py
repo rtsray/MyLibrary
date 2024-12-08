@@ -100,7 +100,8 @@ def register(main_menu_buttons_frame, app):
                 encrypted_password = bcrypt.hashpw(b_password, salt)
 
                 with connection.cursor() as cursor:
-                    cursor.execute('INSERT INTO "Users" (login, password) VALUES (%s, %s);', (user_login, encrypted_password))
+                    cursor.execute('INSERT INTO "users" (login, encrypted_password) VALUES (%s, %s);',
+                                   (user_login, encrypted_password))
                     connection.commit()
                     print("[INFO] An account has been successfully created.")
 
